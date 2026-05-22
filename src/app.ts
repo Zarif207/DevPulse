@@ -2,6 +2,7 @@ import express from "express";
 import { authRoutes } from "./modules/auth/auth.route";
 import auth from "./middleware/auth";
 import role from "./middleware/role";
+import { issueRoutes } from "./modules/issue/issue.route";
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.get("/api/admin", auth, role("maintainer"), (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/issues", issueRoutes);
 
 export default app;
