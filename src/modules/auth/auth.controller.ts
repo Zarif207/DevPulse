@@ -1,22 +1,26 @@
 import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { createUserIntoDB } from "./auth.service";
-import { loginUserFromDB } from "./auth.service";
+
+import { createUserIntoDB, loginUserFromDB } from "./auth.service";
+
+import sendResponse from "../../utils/sendResponse";
 
 export const signupUser = async (req: Request, res: Response) => {
   try {
     const user = await createUserIntoDB(req.body);
 
-    res.status(StatusCodes.CREATED).json({
+    sendResponse(res, {
+      statusCode: StatusCodes.CREATED,
       success: true,
       message: "User registered successfully",
       data: user,
     });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    sendResponse(res, {
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: "Something went wrong",
-      error,
+      message:
+        error instanceof Error ? error.message : "Something went wrong",
     });
   }
 };
@@ -25,13 +29,15 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const result = await loginUserFromDB(req.body);
 
-    res.status(StatusCodes.OK).json({
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
       success: true,
       message: "Login successful",
       data: result,
     });
   } catch (error) {
-    res.status(StatusCodes.UNAUTHORIZED).json({
+    sendResponse(res, {
+      statusCode: StatusCodes.UNAUTHORIZED,
       success: false,
       message: error instanceof Error ? error.message : "Login failed",
     });
