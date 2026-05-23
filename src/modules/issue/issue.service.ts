@@ -14,25 +14,20 @@ export const createIssueIntoDB = async (payload: IIssue) => {
   if (!title) {
     throw new Error("Title is required");
   }
-
   if (title.length > 150) {
     throw new Error("Title cannot exceed 150 characters");
   }
-
   if (!description) {
     throw new Error("Description is required");
   }
-
   if (description.length < 20) {
     throw new Error("Description must be at least 20 characters");
   }
-
   const validTypes = ["bug", "feature_request"];
 
   if (!validTypes.includes(type)) {
     throw new Error("Invalid issue type");
   }
-
   const query = `
     INSERT INTO issues (
       title,
