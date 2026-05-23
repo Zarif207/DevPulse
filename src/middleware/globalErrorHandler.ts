@@ -10,11 +10,10 @@ const globalErrorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  const statusCode = error.statusCode || 500;
-
-  res.status(statusCode).json({
+  res.status(error.statusCode || 500).json({
     success: false,
-    message: error.message || "Something went wrong",
+    message:
+      error.message || "Something went wrong",
     errors: error,
   });
 };

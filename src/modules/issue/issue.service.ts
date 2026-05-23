@@ -2,28 +2,34 @@ import { pool } from "../../db";
 import type { IIssue } from "./issue.interface";
 import type { JwtPayload } from "jsonwebtoken";
 
+interface IReporter {
+  id: number;
+  name: string;
+  role: string;
+}
+
 export const createIssueIntoDB = async (payload: IIssue) => {
   const { title, description, type, reporter_id } = payload;
 
-  if (!payload.title) {
+  if (!title) {
     throw new Error("Title is required");
   }
 
-  if (payload.title.length > 150) {
+  if (title.length > 150) {
     throw new Error("Title cannot exceed 150 characters");
   }
 
-  if (!payload.description) {
+  if (!description) {
     throw new Error("Description is required");
   }
 
-  if (payload.description.length < 20) {
+  if (description.length < 20) {
     throw new Error("Description must be at least 20 characters");
   }
 
   const validTypes = ["bug", "feature_request"];
 
-  if (!validTypes.includes(payload.type)) {
+  if (!validTypes.includes(type)) {
     throw new Error("Invalid issue type");
   }
 
@@ -51,6 +57,7 @@ export const getAllIssuesFromDB = async (
   status?: string,
 ) => {
   let query = `SELECT * FROM issues`;
+
   const conditions: string[] = [];
   const values: string[] = [];
 
@@ -75,9 +82,14 @@ export const getAllIssuesFromDB = async (
   }
 
   const issuesResult = await pool.query(query, values);
+
   const issues = issuesResult.rows;
-  const reporterIds = [...new Set(issues.map((issue) => issue.reporter_id))];
-  let reportersMap: Record<number, any> = {};
+
+  const reporterIds = [
+    ...new Set(issues.map((issue) => issue.reporter_id)),
+  ];
+
+  let reportersMap: Record<number, IReporter> = {};
 
   if (reporterIds.length > 0) {
     const reportersQuery = `
@@ -89,11 +101,11 @@ export const getAllIssuesFromDB = async (
     const reportersResult = await pool.query(reportersQuery, [reporterIds]);
 
     reportersMap = reportersResult.rows.reduce(
-      (acc, reporter) => {
+      (acc, reporter: IReporter) => {
         acc[reporter.id] = reporter;
         return acc;
       },
-      {} as Record<number, any>,
+      {} as Record<number, IReporter>,
     );
   }
 
@@ -132,7 +144,9 @@ export const getSingleIssueFromDB = async (id: string) => {
     WHERE id = $1
   `;
 
-  const reporterResult = await pool.query(reporterQuery, [issue.reporter_id]);
+  const reporterResult = await pool.query(reporterQuery, [
+    issue.reporter_id,
+  ]);
 
   return {
     id: issue.id,
@@ -151,16 +165,17 @@ export const updateIssueIntoDB = async (
   payload: Partial<IIssue>,
   user: JwtPayload,
 ) => {
-  // get existing issue
-  const issueRes = await pool.query(`SELECT * FROM issues WHERE id = $1`, [
-    issueId,
-  ]);
+  const issueRes = await pool.query(
+    `SELECT * FROM issues WHERE id = $1`,
+    [issueId],
+  );
 
   const existingIssue = issueRes.rows[0];
 
   if (!existingIssue) {
     throw new Error("Issue not found");
   }
+
   if (user.role === "contributor") {
     if (existingIssue.reporter_id !== user.id) {
       throw new Error("Forbidden");
@@ -170,12 +185,18 @@ export const updateIssueIntoDB = async (
       throw new Error("You cannot edit this issue");
     }
   }
+
   if (payload.title && payload.title.length > 150) {
     throw new Error("Title cannot exceed 150 characters");
   }
 
-  if (payload.description && payload.description.length < 20) {
-    throw new Error("Description must be at least 20 characters");
+  if (
+    payload.description &&
+    payload.description.length < 20
+  ) {
+    throw new Error(
+      "Description must be at least 20 characters",
+    );
   }
 
   if (payload.type) {
@@ -187,7 +208,10 @@ export const updateIssueIntoDB = async (
   }
 
   const title = payload.title || existingIssue.title;
-  const description = payload.description || existingIssue.description;
+
+  const description =
+    payload.description || existingIssue.description;
+
   const type = payload.type || existingIssue.type;
 
   const result = await pool.query(
@@ -206,14 +230,24 @@ export const updateIssueIntoDB = async (
   return result.rows[0];
 };
 
-export const deleteIssueFromDB = async (issueId: string) => {
-  const issueRes = await pool.query(`SELECT * FROM issues WHERE id = $1`, [
-    issueId,
-  ]);
+export const deleteIssueFromDB = async (
+  issueId: string,
+) => {
+  const issueRes = await pool.query(
+    `SELECT * FROM issues WHERE id = $1`,
+    [issueId],
+  );
+
   const existingIssue = issueRes.rows[0];
+
   if (!existingIssue) {
     throw new Error("Issue not found");
   }
-  await pool.query(`DELETE FROM issues WHERE id = $1`, [issueId]);
+
+  await pool.query(
+    `DELETE FROM issues WHERE id = $1`,
+    [issueId],
+  );
+
   return null;
 };

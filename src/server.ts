@@ -1,7 +1,9 @@
 import app from "./app";
 import { pool } from "./db";
+import dotenv from "dotenv";
 
 const port = process.env.PORT || 4000;
+dotenv.config();
 
 const startServer = async () => {
   try {
