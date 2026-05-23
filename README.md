@@ -111,20 +111,6 @@ npm install
 
 ---
 
-# 🔑 Environment Variables
-
-Create a `.env` file in the root directory.
-
-```env
-PORT=4000
-
-DATABASE_URL=your_neon_database_url
-
-JWT_SECRET=your_secret_key
-```
-
----
-
 # ▶️ Available Scripts
 
 ## Run Development Server
