@@ -2,9 +2,13 @@ import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 import sendResponse from "../../utils/sendResponse";
-import { createIssueIntoDB, updateIssueIntoDB } from "./issue.service";
-import { getAllIssuesFromDB } from "./issue.service";
-import { getSingleIssueFromDB } from "./issue.service";
+import {
+  createIssueIntoDB,
+  deleteIssueFromDB,
+  getAllIssuesFromDB,
+  getSingleIssueFromDB,
+  updateIssueIntoDB,
+} from "./issue.service";
 
 export const createIssue = async (req: Request, res: Response) => {
   try {
@@ -104,6 +108,34 @@ export const updateIssue = async (req: Request, res: Response) => {
       success: false,
       message:
         error instanceof Error ? error.message : "Failed to update issue",
+    });
+  }
+};
+
+export const deleteIssue = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid issue id",
+      });
+    }
+
+    await deleteIssueFromDB(id);
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Issue deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to delete issue",
     });
   }
 };
