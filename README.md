@@ -1,44 +1,64 @@
-# DevPulse Backend API
+# 🚀 DevPulse Backend API
 
-A RESTful Issue Tracking Backend built with Express.js, TypeScript, PostgreSQL, and JWT Authentication.
+A scalable and secure Issue Tracking Backend API built with **Node.js**, **Express.js**, **TypeScript**, and **PostgreSQL**.
 
-Live API: https://devpulse-fa6e.onrender.com/
-
----
-
-## Features
-
-- JWT Authentication
-- Role-based Authorization
-- Create / Read / Update / Delete Issues
-- PostgreSQL Database Integration
-- Global Error Handling
-- Protected Routes
-- TypeScript Support
-- Render Deployment
-- Neon PostgreSQL Database
+DevPulse helps developers and teams report bugs, manage feature requests, and track issue workflows with JWT-based authentication and role-based authorization.
 
 ---
 
-## Tech Stack
+## 🌐 Live API
 
-- Node.js
-- Express.js
-- TypeScript
-- PostgreSQL
-- Neon
-- JWT
-- bcrypt
-- Render
+```bash
+https://devpulse-fa6e.onrender.com/
+```
 
 ---
 
-## Project Structure
+## 📂 Repository
+
+```bash
+https://github.com/Zarif207/DevPulse
+```
+
+---
+
+# ✨ Features
+
+- 🔐 JWT Authentication & Authorization
+- 🛡️ Role-Based Access Control (RBAC)
+- 🔑 Secure Password Hashing with bcrypt
+- 📝 Create, Read, Update & Delete Issues
+- 🗄️ PostgreSQL Database Integration
+- ⚠️ Global Error Handling Middleware
+- ✅ Request Validation
+- 📦 Modular Express Architecture
+- ☁️ Render Deployment
+- 🌍 Neon PostgreSQL Cloud Database
+
+---
+
+# 🛠️ Technology Stack
+
+| Technology | Usage |
+|---|---|
+| Node.js | Backend Runtime |
+| Express.js | Web Framework |
+| TypeScript | Type Safety |
+| PostgreSQL | Relational Database |
+| Neon | Cloud Database Hosting |
+| JWT | Authentication |
+| bcrypt | Password Hashing |
+| Render | Deployment Platform |
+
+---
+
+# 📁 Project Structure
 
 ```bash
 src
-├── config
 ├── db
+│   └── index.ts
+│
 ├── middleware
 │   ├── auth.ts
 │   ├── role.ts
@@ -58,6 +78,8 @@ src
 │       └── issue.service.ts
 │
 ├── types
+│   └── express.d.ts
+│
 ├── utils
 │   └── sendResponse.ts
 │
@@ -67,21 +89,21 @@ src
 
 ---
 
-## Installation
+# ⚙️ Installation & Setup
 
-### Clone Repository
+## Clone Repository
 
 ```bash
 git clone https://github.com/Zarif207/DevPulse.git
 ```
 
-### Move Into Project Directory
+## Navigate Into Project
 
 ```bash
 cd DevPulse
 ```
 
-### Install Dependencies
+## Install Dependencies
 
 ```bash
 npm install
@@ -89,7 +111,7 @@ npm install
 
 ---
 
-## Environment Variables
+# 🔑 Environment Variables
 
 Create a `.env` file in the root directory.
 
@@ -103,21 +125,21 @@ JWT_SECRET=your_secret_key
 
 ---
 
-## Run Project
+# ▶️ Available Scripts
 
-### Development
+## Run Development Server
 
 ```bash
 npm run dev
 ```
 
-### Build Project
+## Build Project
 
 ```bash
 npm run build
 ```
 
-### Production
+## Run Production Server
 
 ```bash
 npm start
@@ -125,23 +147,17 @@ npm start
 
 ---
 
-# API Endpoints
+# 📌 API Endpoints
 
-## Root Route
+# 🔐 Authentication
 
-### GET /
+## Register User
 
-```json
-DevPulse Server Running
+### Endpoint
+
+```http
+POST /api/auth/signup
 ```
-
----
-
-# Authentication Routes
-
-## User Registration
-
-### POST /api/auth/signup
 
 ### Request Body
 
@@ -159,21 +175,19 @@ DevPulse Server Running
 ```json
 {
   "success": true,
-  "message": "User registered successfully",
-  "data": {
-    "id": 1,
-    "name": "Zarif Hasan",
-    "email": "zarif@gmail.com",
-    "role": "contributor"
-  }
+  "message": "User registered successfully"
 }
 ```
 
 ---
 
-## User Login
+## Login User
 
-### POST /api/auth/login
+### Endpoint
+
+```http
+POST /api/auth/login
+```
 
 ### Request Body
 
@@ -198,11 +212,15 @@ DevPulse Server Running
 
 ---
 
-# Issue Routes
+# 🐞 Issue Management
 
 ## Create Issue
 
-### POST /api/issues
+### Endpoint
+
+```http
+POST /api/issues
+```
 
 ### Headers
 
@@ -215,17 +233,8 @@ Authorization: your_jwt_token
 ```json
 {
   "title": "Dark mode issue",
-  "description": "Navbar breaks in dark mode during responsive view",
+  "description": "Navbar breaks during responsive dark mode testing",
   "type": "bug"
-}
-```
-
-### Success Response
-
-```json
-{
-  "success": true,
-  "message": "Issue created successfully"
 }
 ```
 
@@ -233,30 +242,31 @@ Authorization: your_jwt_token
 
 ## Get All Issues
 
-### GET /api/issues
+### Endpoint
+
+```http
+GET /api/issues
+```
 
 ### Query Parameters
 
 ```bash
 /api/issues?sort=newest
+
 /api/issues?type=bug
+
 /api/issues?status=open
-```
-
-### Success Response
-
-```json
-{
-  "success": true,
-  "message": "Issues retrieved successfully"
-}
 ```
 
 ---
 
 ## Get Single Issue
 
-### GET /api/issues/:id
+### Endpoint
+
+```http
+GET /api/issues/:id
+```
 
 ### Example
 
@@ -268,7 +278,11 @@ Authorization: your_jwt_token
 
 ## Update Issue
 
-### PATCH /api/issues/:id
+### Endpoint
+
+```http
+PATCH /api/issues/:id
+```
 
 ### Headers
 
@@ -288,7 +302,11 @@ Authorization: your_jwt_token
 
 ## Delete Issue
 
-### DELETE /api/issues/:id
+### Endpoint
+
+```http
+DELETE /api/issues/:id
+```
 
 ### Headers
 
@@ -298,79 +316,101 @@ Authorization: your_jwt_token
 
 ---
 
-# Authorization Roles
+# 👥 Authorization Roles
 
-| Role        | Permissions                          |
-| ------------| ------------------------------------ |
-| contributor | Create and manage own issues        |
-| maintainer  | Full access including delete issues |
+| Role | Permissions |
+|---|---|
+| contributor | Create and manage own issues |
+| maintainer | Full system access including delete |
 
 ---
 
-# Validation Rules
+# ✅ Validation Rules
 
 ## User Validation
 
 - Email must be unique
 - Password minimum length required
-- Role must be contributor or maintainer
+- Role must be:
+  - contributor
+  - maintainer
 
 ## Issue Validation
 
 - Title maximum 150 characters
 - Description minimum 20 characters
-- Type must be:
+- Issue type must be:
   - bug
   - feature_request
 
 ---
 
-# Error Handling
+# ⚠️ Error Handling
 
-The API handles:
+Centralized error handling is implemented for:
 
-- Invalid Token
-- Unauthorized Access
+- Invalid JWT Token
+- Unauthorized Requests
 - Forbidden Access
 - Validation Errors
-- Route Not Found
+- Resource Not Found
 - Database Errors
 - Internal Server Errors
 
 ---
 
-# Deployment
+# 🗄️ Database Schema
 
-- Backend: Render
-- Database: Neon PostgreSQL
+# Users Table
 
----
-
-# Live Deployment
-
-```bash
-https://devpulse-fa6e.onrender.com/
-```
-
----
-
-# GitHub Repository
-
-```bash
-https://github.com/Zarif207/DevPulse
-```
+| Field | Type |
+|---|---|
+| id | Serial |
+| name | VARCHAR |
+| email | VARCHAR |
+| password | TEXT |
+| role | VARCHAR |
+| created_at | TIMESTAMP |
+| updated_at | TIMESTAMP |
 
 ---
 
-# Author
+# Issues Table
+
+| Field | Type |
+|---|---|
+| id | Serial |
+| title | VARCHAR |
+| description | TEXT |
+| type | VARCHAR |
+| status | VARCHAR |
+| reporter_id | INTEGER |
+| created_at | TIMESTAMP |
+| updated_at | TIMESTAMP |
+
+---
+
+# ☁️ Deployment
+
+| Service | Platform |
+|---|---|
+| Backend Hosting | Render |
+| Database Hosting | Neon PostgreSQL |
+
+---
+
+# 👨‍💻 Author
 
 ## Zarif Hasan
 
 GitHub:
+
+```bash
 https://github.com/Zarif207
+```
 
 ---
 
-# License
+# 📜 License
 
-This project is created for educational and portfolio purposes.
+This project is developed for educational and portfolio purposes.
