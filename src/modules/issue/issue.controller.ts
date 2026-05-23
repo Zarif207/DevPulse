@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 import sendResponse from "../../utils/sendResponse";
-import { createIssueIntoDB } from "./issue.service";
+import { createIssueIntoDB, updateIssueIntoDB } from "./issue.service";
 import { getAllIssuesFromDB } from "./issue.service";
 import { getSingleIssueFromDB } from "./issue.service";
 
@@ -67,6 +67,43 @@ export const getSingleIssue = async (req: Request, res: Response) => {
     res.status(StatusCodes.NOT_FOUND).json({
       success: false,
       message: error instanceof Error ? error.message : "Issue not found",
+    });
+  }
+};
+
+export const updateIssue = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid issue id",
+      });
+    }
+
+    const user = req.user;
+
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const result = await updateIssueIntoDB(id, req.body, user);
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Issue updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to update issue",
     });
   }
 };

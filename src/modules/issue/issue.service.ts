@@ -1,5 +1,6 @@
 import { pool } from "../../db";
 import type { IIssue } from "./issue.interface";
+import type { JwtPayload } from "jsonwebtoken";
 
 export const createIssueIntoDB = async (payload: IIssue) => {
   const { title, description, type, reporter_id } = payload;
@@ -126,5 +127,48 @@ export const getSingleIssueFromDB = async (id: string) => {
   };
 };
 
+export const updateIssueIntoDB = async (
+  issueId: string,
+  payload: Partial<IIssue>,
+  user: JwtPayload,
+) => {
+  // get existing issue
+  const issueRes = await pool.query(`SELECT * FROM issues WHERE id = $1`, [
+    issueId,
+  ]);
 
+  const existingIssue = issueRes.rows[0];
 
+  if (!existingIssue) {
+    throw new Error("Issue not found");
+  }
+
+  if (user.role === "contributor") {
+    if (existingIssue.reporter_id !== user.id) {
+      throw new Error("Forbidden");
+    }
+
+    if (existingIssue.status !== "open") {
+      throw new Error("You cannot edit this issue");
+    }
+  }
+
+  const title = payload.title || existingIssue.title;
+  const description = payload.description || existingIssue.description;
+  const type = payload.type || existingIssue.type;
+
+  const result = await pool.query(
+    `
+      UPDATE issues
+      SET title = $1,
+          description = $2,
+          type = $3,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $4
+      RETURNING *
+    `,
+    [title, description, type, issueId],
+  );
+
+  return result.rows[0];
+};
