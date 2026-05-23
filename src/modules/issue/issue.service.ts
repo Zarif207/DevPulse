@@ -5,6 +5,28 @@ import type { JwtPayload } from "jsonwebtoken";
 export const createIssueIntoDB = async (payload: IIssue) => {
   const { title, description, type, reporter_id } = payload;
 
+  if (!payload.title) {
+    throw new Error("Title is required");
+  }
+
+  if (payload.title.length > 150) {
+    throw new Error("Title cannot exceed 150 characters");
+  }
+
+  if (!payload.description) {
+    throw new Error("Description is required");
+  }
+
+  if (payload.description.length < 20) {
+    throw new Error("Description must be at least 20 characters");
+  }
+
+  const validTypes = ["bug", "feature_request"];
+
+  if (!validTypes.includes(payload.type)) {
+    throw new Error("Invalid issue type");
+  }
+
   const query = `
     INSERT INTO issues (
       title,
@@ -53,12 +75,9 @@ export const getAllIssuesFromDB = async (
   }
 
   const issuesResult = await pool.query(query, values);
-
   const issues = issuesResult.rows;
-
   const reporterIds = [...new Set(issues.map((issue) => issue.reporter_id))];
-
-  let reportersMap: Record<number, unknown> = {};
+  let reportersMap: Record<number, any> = {};
 
   if (reporterIds.length > 0) {
     const reportersQuery = `
@@ -74,7 +93,7 @@ export const getAllIssuesFromDB = async (
         acc[reporter.id] = reporter;
         return acc;
       },
-      {} as Record<number, unknown>,
+      {} as Record<number, any>,
     );
   }
 
@@ -142,7 +161,6 @@ export const updateIssueIntoDB = async (
   if (!existingIssue) {
     throw new Error("Issue not found");
   }
-
   if (user.role === "contributor") {
     if (existingIssue.reporter_id !== user.id) {
       throw new Error("Forbidden");
@@ -150,6 +168,21 @@ export const updateIssueIntoDB = async (
 
     if (existingIssue.status !== "open") {
       throw new Error("You cannot edit this issue");
+    }
+  }
+  if (payload.title && payload.title.length > 150) {
+    throw new Error("Title cannot exceed 150 characters");
+  }
+
+  if (payload.description && payload.description.length < 20) {
+    throw new Error("Description must be at least 20 characters");
+  }
+
+  if (payload.type) {
+    const validTypes = ["bug", "feature_request"];
+
+    if (!validTypes.includes(payload.type)) {
+      throw new Error("Invalid issue type");
     }
   }
 

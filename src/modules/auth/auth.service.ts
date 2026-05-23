@@ -10,6 +10,40 @@ dotenv.config();
 export const createUserIntoDB = async (payload: IUser) => {
   const { name, email, password, role } = payload;
 
+  if (!name) {
+    throw new Error("Name is required");
+  }
+  if (!email) {
+    throw new Error("Email is required");
+  }
+  if (!password) {
+    throw new Error("Password is required");
+  }
+  if (password.length < 6) {
+    throw new Error("Password must be at least 6 characters");
+  }
+  const validRoles = ["contributor", "maintainer"];
+
+  if (!validRoles.includes(role)) {
+    throw new Error("Invalid role");
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    throw new Error("Invalid email format");
+  }
+
+  const existingUserQuery = `
+    SELECT * FROM users
+    WHERE email = $1
+  `;
+
+  const existingUser = await pool.query(existingUserQuery, [email]);
+
+  if (existingUser.rows.length > 0) {
+    throw new Error("User already exists");
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const query = `
@@ -27,6 +61,10 @@ export const createUserIntoDB = async (payload: IUser) => {
 
 export const loginUserFromDB = async (payload: ILoginUser) => {
   const { email, password } = payload;
+
+  if (!email || !password) {
+    throw new Error("Email and password are required");
+  }
 
   const query = `
     SELECT * FROM users
